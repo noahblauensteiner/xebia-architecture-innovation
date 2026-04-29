@@ -8,6 +8,7 @@ import {
   useEdgesState,
   type Connection,
   type Node,
+  type Edge,
   MarkerType,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -45,7 +46,7 @@ function buildPreviewTree(nodes: Node[]): string[] {
 
 export default function App() {
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState([])
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const [projectName, setProjectName] = useState('my-kotlin-app')
   const [visitorEmail, setVisitorEmail] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -61,7 +62,7 @@ export default function App() {
   const onConnect = useCallback(
     (connection: Connection) =>
       setEdges((eds) =>
-        addEdge({ ...connection, animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: '#6b7280' }, style: { stroke: '#6b7280' } }, eds)
+        addEdge({ ...connection, animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: '#6b7280' }, style: { stroke: '#6b7280' } } as Edge, eds)
       ),
     [setEdges]
   )
@@ -96,7 +97,7 @@ export default function App() {
           const d = n.data as ModuleNodeData
           return { id: n.id, type: d.moduleType, label: d.label }
         }),
-        edges: edges.map((e) => ({ source: e.source, target: e.target })),
+        edges: (edges as Edge[]).map((e) => ({ source: e.source, target: e.target })),
         visitorEmail: visitorEmail || undefined,
       })
       setFileTree(result.fileTree)
