@@ -1,12 +1,11 @@
 package com.xebia.archviz.generator
 
 import com.xebia.archviz.model.GenerateRequest
-import java.io.ByteArrayOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
+import java.nio.file.Path
+import kotlin.io.path.*
 
 data class GeneratedProject(
-    val zipBytes: ByteArray,
+    val outputPath: Path,
     val fileTree: List<String>,
 )
 
@@ -67,23 +66,24 @@ fun generateProject(request: GenerateRequest): GeneratedProject {
     files["archunit-rules/src/test/kotlin/$packagePath/arch/ArchitectureTest.kt"] = archunitStub(request.packageName)
     treeLines += "└── 📁 archunit-rules/  🛡️"
 
-    val zipBytes = zipFiles(root, files)
-    return GeneratedProject(zipBytes = zipBytes, fileTree = treeLines)
+    val outputPath = writeToDirectory(root, files)
+    return GeneratedProject(outputPath = outputPath, fileTree = treeLines)
 }
 
 private fun String.sanitize() = lowercase().replace(Regex("[^a-z0-9-]"), "-").trim('-')
 private fun String.capitalize() = replaceFirstChar { it.uppercase() }
 
-private fun zipFiles(root: String, files: Map<String, String>): ByteArray {
-    val baos = ByteArrayOutputStream()
-    ZipOutputStream(baos).use { zip ->
-        files.forEach { (path, content) ->
-            zip.putNextEntry(ZipEntry("$root/$path"))
-            zip.write(content.toByteArray(Charsets.UTF_8))
-            zip.closeEntry()
-        }
+private fun writeToDirectory(root: String, files: Map<String, String>): Path {
+    val outputDir = Path(System.getProperty("user.dir")).parent.resolve("output").resolve(root)
+    if (outputDir.exists()) outputDir.toFile().deleteRecursively()
+    outputDir.createDirectories()
+
+    files.forEach { (relativePath, content) ->
+        val file = outputDir.resolve(relativePath)
+        file.parent.createDirectories()
+        file.writeText(content, Charsets.UTF_8)
     }
-    return baos.toByteArray()
+    return outputDir
 }
 
 private fun settingsGradle(rootName: String, includes: String) = """

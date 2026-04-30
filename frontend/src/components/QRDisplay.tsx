@@ -3,10 +3,10 @@ import QRCode from 'qrcode'
 
 interface Props {
   url: string
-  zipUrl: string
+  generated: boolean
 }
 
-export function QRDisplay({ url, zipUrl }: Props) {
+export function QRDisplay({ url, generated }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -19,6 +19,14 @@ export function QRDisplay({ url, zipUrl }: Props) {
     }
   }, [url])
 
+  if (!generated) {
+    return (
+      <div className="text-[11px] text-gray-600 italic">
+        QR code appears after generation
+      </div>
+    )
+  }
+
   return (
     <div className="flex items-center gap-3">
       {url ? (
@@ -26,18 +34,12 @@ export function QRDisplay({ url, zipUrl }: Props) {
           <div className="text-right">
             <div className="text-[10px] text-gray-400">Scan to get your</div>
             <div className="text-[10px] text-gray-400">project on GitHub</div>
-            <a
-              href={zipUrl}
-              className="text-[10px] text-xebia underline mt-0.5 block"
-            >
-              or download ZIP
-            </a>
           </div>
           <canvas ref={canvasRef} className="rounded" />
         </>
       ) : (
-        <div className="text-[11px] text-gray-600 italic">
-          QR code appears after generation
+        <div className="text-sm font-medium text-green-400">
+          ✓ Project generated
         </div>
       )}
     </div>

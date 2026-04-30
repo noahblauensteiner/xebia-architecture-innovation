@@ -19,5 +19,8 @@ dist/
 .DS_Store
 Thumbs.db
 
+# Generated output
+output/
+
 # Secrets
 backend/src/main/resources/application-local.conf

@@ -50,7 +50,7 @@ export default function App() {
   const [projectName, setProjectName] = useState('my-kotlin-app')
   const [visitorEmail, setVisitorEmail] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
-  const [generatedResult, setGeneratedResult] = useState<{ branchUrl: string | null; zipUrl: string } | null>(null)
+  const [generatedResult, setGeneratedResult] = useState<{ branchUrl: string | null } | null>(null)
   const [fileTree, setFileTree] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const nodeCounter = useState(0)
@@ -101,7 +101,7 @@ export default function App() {
         visitorEmail: visitorEmail || undefined,
       })
       setFileTree(result.fileTree)
-      setGeneratedResult({ branchUrl: result.branchUrl, zipUrl: result.zipDownloadUrl })
+      setGeneratedResult({ branchUrl: result.branchUrl })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error')
     } finally {
@@ -181,7 +181,7 @@ export default function App() {
         <div className="ml-auto">
           <QRDisplay
             url={generatedResult?.branchUrl ?? ''}
-            zipUrl={generatedResult?.zipUrl ?? ''}
+            generated={generatedResult !== null}
           />
         </div>
       </footer>
