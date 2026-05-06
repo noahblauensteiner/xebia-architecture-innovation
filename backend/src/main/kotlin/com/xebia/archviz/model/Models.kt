@@ -26,7 +26,7 @@ data class DependencyEdge(
 
 @Serializable
 enum class ModuleType {
-    core, database, ui, api, auth, domain, network, test
+    core, database, ui, api, domain, incomingPort, incomingAdapter, outgoingPort, outgoingAdapter
 }
 
 @Serializable

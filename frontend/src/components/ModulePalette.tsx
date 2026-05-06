@@ -1,6 +1,6 @@
 import { MODULE_META, type ModuleType } from '../types/architecture'
 
-const PALETTE_TYPES: ModuleType[] = ['core', 'database', 'ui', 'api', 'auth', 'domain', 'network', 'test']
+const PALETTE_TYPES: ModuleType[] = ['core', 'database', 'ui', 'api', 'domain', 'incomingPort', 'incomingAdapter', 'outgoingPort', 'outgoingAdapter']
 
 interface Props {
   onAdd: (type: ModuleType) => void

@@ -21,3 +21,14 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+.react-flow__controls-button {
+  background: #1f2937;
+  border-bottom: 1px solid #374151;
+  fill: #9ca3af;
+}
+
+.react-flow__controls-button:hover {
+  background: #374151;
+  fill: #f3f4f6;
+}
