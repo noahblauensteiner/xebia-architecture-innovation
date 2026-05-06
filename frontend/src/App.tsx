@@ -82,9 +82,9 @@ export default function App() {
         id,
         type: 'module',
         position: { x: 160 + (count % 3) * 180, y: 80 + Math.floor(count / 3) * 140 },
-        data: { moduleType: type, label: type } satisfies ModuleNodeData,
+        data: { moduleType: type, label: type, displayName: type, description: '' } satisfies ModuleNodeData,
       }
-      setNodes((nds) => [...nds, newNode])
+      setNodes((nds) => [...nds.map((n) => ({ ...n, selected: false })), { ...newNode, selected: true }])
     },
     [setNodes, nodeCounter]
   )
@@ -134,6 +134,12 @@ export default function App() {
     setEdgeMenu(null)
     setConnectingFrom(null)
   }, [])
+
+  const renameNode = useCallback((id: string, field: 'displayName' | 'label' | 'description', value: string) => {
+    setNodes((nds) =>
+      nds.map((n) => n.id === id ? { ...n, data: { ...n.data, [field]: value } } : n)
+    )
+  }, [setNodes])
 
   const handleHandleClick = useCallback((nodeId: string, handleId: string) => {
     setConnectingFrom((prev) => {
@@ -227,7 +233,12 @@ export default function App() {
           </ReactFlow>
         </div>
 
-        <FileTree fileTree={fileTree} isGenerating={isGenerating} />
+        <FileTree
+          fileTree={fileTree}
+          isGenerating={isGenerating}
+          selectedNode={nodes.find((n) => n.selected) ?? null}
+          onRenameNode={renameNode}
+        />
       </div>
 
       {/* Edge context menu */}
