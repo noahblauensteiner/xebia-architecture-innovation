@@ -4,6 +4,7 @@ import {
   addEdge,
   Background,
   Controls,
+  ConnectionMode,
   useNodesState,
   useEdgesState,
   type Connection,
@@ -18,6 +19,7 @@ import { ModulePalette } from './components/ModulePalette'
 import { FileTree } from './components/FileTree'
 import { QRDisplay } from './components/QRDisplay'
 import { WelcomeScreen } from './components/WelcomeScreen'
+import { ConnectionContext } from './context/ConnectionContext'
 import { generateProject } from './api/generate'
 import type { ModuleType } from './types/architecture'
 
@@ -55,6 +57,8 @@ export default function App() {
   const [generatedResult, setGeneratedResult] = useState<{ branchUrl: string | null } | null>(null)
   const [fileTree, setFileTree] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [edgeMenu, setEdgeMenu] = useState<{ edge: Edge; x: number; y: number } | null>(null)
+  const [connectingFrom, setConnectingFrom] = useState<{ nodeId: string; handleId: string } | null>(null)
   const nodeCounter = useState(0)
 
   useEffect(() => {
@@ -117,9 +121,73 @@ export default function App() {
     setGeneratedResult(null)
     setFileTree([])
     setError(null)
+    setEdgeMenu(null)
+    setConnectingFrom(null)
   }
 
+  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+    event.stopPropagation()
+    setEdgeMenu({ edge, x: event.clientX, y: event.clientY })
+  }, [])
+
+  const onPaneClick = useCallback(() => {
+    setEdgeMenu(null)
+    setConnectingFrom(null)
+  }, [])
+
+  const handleHandleClick = useCallback((nodeId: string, handleId: string) => {
+    setConnectingFrom((prev) => {
+      if (!prev) return { nodeId, handleId }
+      if (prev.nodeId === nodeId && prev.handleId === handleId) return null
+      if (prev.nodeId === nodeId) return { nodeId, handleId }
+      // Different node — create edge
+      const newEdge: Edge = {
+        id: `e-${prev.nodeId}-${nodeId}-${Date.now()}`,
+        source: prev.nodeId,
+        target: nodeId,
+        sourceHandle: `${prev.handleId}-s`,
+        targetHandle: `${handleId}-t`,
+        animated: true,
+        markerEnd: { type: MarkerType.ArrowClosed, color: '#6b7280' },
+        style: { stroke: '#6b7280' },
+      }
+      setEdges((eds) => addEdge(newEdge, eds))
+      return null
+    })
+  }, [setEdges])
+
+  const deleteEdge = () => {
+    if (!edgeMenu) return
+    setEdges((eds) => eds.filter((e) => e.id !== edgeMenu.edge.id))
+    setEdgeMenu(null)
+  }
+
+  const flipEdge = () => {
+    if (!edgeMenu) return
+    setEdges((eds) =>
+      eds.map((e) =>
+        e.id === edgeMenu.edge.id
+          ? {
+              ...e,
+              source: e.target,
+              target: e.source,
+              sourceHandle: e.targetHandle?.replace('-t', '-s') ?? e.targetHandle,
+              targetHandle: e.sourceHandle?.replace('-s', '-t') ?? e.sourceHandle,
+            }
+          : e
+      )
+    )
+    setEdgeMenu(null)
+  }
+
+  const displayEdges = edges.map((e) =>
+    e.id === edgeMenu?.edge.id
+      ? { ...e, style: { stroke: '#ff6600', strokeWidth: 2.5 } }
+      : e
+  )
+
   return (
+    <ConnectionContext.Provider value={{ connectingFrom, onHandleClick: handleHandleClick }}>
     <div className="flex flex-col h-screen bg-gray-900">
       {!welcomed && <WelcomeScreen onStart={() => setWelcomed(true)} />}
       {/* Header */}
@@ -142,11 +210,15 @@ export default function App() {
         <div className="flex-1 relative">
           <ReactFlow
             nodes={nodes}
-            edges={edges}
+            edges={displayEdges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onConnectStart={() => setConnectingFrom(null)}
+            onEdgeClick={onEdgeClick}
+            onPaneClick={onPaneClick}
             nodeTypes={nodeTypes}
+            connectionMode={ConnectionMode.Loose}
             fitView
             className="bg-gray-900"
           >
@@ -157,6 +229,28 @@ export default function App() {
 
         <FileTree fileTree={fileTree} isGenerating={isGenerating} />
       </div>
+
+      {/* Edge context menu */}
+      {edgeMenu && (
+        <div
+          className="fixed z-40 flex gap-px bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden"
+          style={{ left: edgeMenu.x, top: edgeMenu.y, transform: 'translate(-50%, calc(-100% - 10px))' }}
+        >
+          <button
+            onClick={flipEdge}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+          >
+            ↔ Flip
+          </button>
+          <div className="w-px bg-gray-700" />
+          <button
+            onClick={deleteEdge}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors"
+          >
+            ✕ Delete
+          </button>
+        </div>
+      )}
 
       {/* Bottom bar */}
       <footer className="flex items-center gap-4 px-5 py-3 bg-gray-950 border-t border-gray-800 flex-shrink-0">
@@ -189,5 +283,6 @@ export default function App() {
         </div>
       </footer>
     </div>
+    </ConnectionContext.Provider>
   )
 }
