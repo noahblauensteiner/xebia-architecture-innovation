@@ -17,6 +17,7 @@ import { ModuleNodeComponent, type ModuleNodeData } from './components/ModuleNod
 import { ModulePalette } from './components/ModulePalette'
 import { FileTree } from './components/FileTree'
 import { QRDisplay } from './components/QRDisplay'
+import { WelcomeScreen } from './components/WelcomeScreen'
 import { generateProject } from './api/generate'
 import type { ModuleType } from './types/architecture'
 
@@ -45,6 +46,7 @@ function buildPreviewTree(nodes: Node[]): string[] {
 }
 
 export default function App() {
+  const [welcomed, setWelcomed] = useState(false)
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const [projectName, setProjectName] = useState('my-kotlin-app')
@@ -119,6 +121,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900">
+      {!welcomed && <WelcomeScreen onStart={() => setWelcomed(true)} />}
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-2.5 bg-gray-950 border-b border-gray-800 flex-shrink-0">
         <span className="font-bold text-xebia tracking-widest text-sm">XEBIA</span>
