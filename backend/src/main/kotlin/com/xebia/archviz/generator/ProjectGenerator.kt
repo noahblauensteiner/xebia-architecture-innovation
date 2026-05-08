@@ -74,7 +74,7 @@ private fun String.sanitize() = lowercase().replace(Regex("[^a-z0-9-]"), "-").tr
 private fun String.capitalize() = replaceFirstChar { it.uppercase() }
 
 private fun writeToDirectory(root: String, files: Map<String, String>): Path {
-    val outputDir = Path(System.getProperty("user.dir")).parent.resolve("output").resolve(root)
+    val outputDir = Path(System.getProperty("user.dir")).resolve("out").resolve(root)
     if (outputDir.exists()) outputDir.toFile().deleteRecursively()
     outputDir.createDirectories()
 

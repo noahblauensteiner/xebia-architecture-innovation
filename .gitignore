@@ -21,6 +21,7 @@ Thumbs.db
 
 # Generated output
 output/
+out/
 
 # Secrets
 backend/src/main/resources/application-local.conf
