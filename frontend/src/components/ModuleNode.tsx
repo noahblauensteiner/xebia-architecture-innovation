@@ -50,7 +50,7 @@ export function ModuleNodeComponent({ id, data, selected }: NodeProps) {
   }
 
   const ring = isPending
-    ? 'ring-2 ring-xebia ring-offset-1 ring-offset-gray-900'
+    ? 'ring-2 ring-xavi ring-offset-1 ring-offset-gray-900'
     : isTarget
     ? 'ring-2 ring-sky-400 ring-offset-1 ring-offset-gray-900'
     : selected

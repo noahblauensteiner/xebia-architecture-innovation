@@ -123,9 +123,12 @@ export default function App() {
 
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-2.5 bg-gray-950 border-b border-gray-800 flex-shrink-0">
-        <span className="font-bold text-xebia tracking-widest text-sm">XEBIA</span>
+        <button
+          onClick={() => setWelcomed(false)}
+          className="font-bold text-xavi tracking-widest text-sm hover:opacity-80 transition-opacity cursor-pointer"
+        >XAVI</button>
         <input
-          className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-1.5 w-48 focus:outline-none focus:border-xebia"
+          className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-1.5 w-48 focus:outline-none focus:border-xavi"
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
           placeholder="project-name"
@@ -154,7 +157,7 @@ export default function App() {
           {isSplit && (
             <>
               <div
-                className="h-1 bg-gray-700 hover:bg-xebia cursor-row-resize flex-shrink-0 transition-colors"
+                className="h-1 bg-gray-700 hover:bg-xavi cursor-row-resize flex-shrink-0 transition-colors"
                 onMouseDown={onSplitterMouseDown}
               />
               <div className="flex-1 min-h-0">
@@ -183,7 +186,7 @@ export default function App() {
         <button
           onClick={handleGenerate}
           disabled={isGenerating || canvasA.nodes.length === 0}
-          className="bg-xebia hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-colors"
+          className="bg-xavi hover:bg-[#7a2d72] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-colors"
         >
           {isGenerating ? 'Generating…' : '⚡ Generate Project'}
         </button>
@@ -194,7 +197,7 @@ export default function App() {
           Clear
         </button>
         <input
-          className="bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg px-3 py-2 w-52 focus:outline-none focus:border-xebia"
+          className="bg-gray-800 border border-gray-700 text-gray-300 text-sm rounded-lg px-3 py-2 w-52 focus:outline-none focus:border-xavi"
           value={visitorEmail}
           onChange={(e) => setVisitorEmail(e.target.value)}
           placeholder="visitor@email.com (optional)"

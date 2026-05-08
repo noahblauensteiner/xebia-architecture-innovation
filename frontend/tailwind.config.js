@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         xebia: '#f60',
+        xavi: '#64235c',
       },
     },
   },

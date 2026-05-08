@@ -20,7 +20,7 @@ export function ModulePalette({ onAdd }: Props) {
             className={`
               flex flex-col items-center justify-center gap-0.5
               w-14 h-12 mx-auto rounded-lg border border-dashed border-gray-700
-              hover:border-xebia hover:bg-gray-900 transition-colors
+              hover:border-xavi hover:bg-gray-900 transition-colors
               text-gray-400 hover:text-gray-200
             `}
           >

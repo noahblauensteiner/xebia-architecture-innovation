@@ -4,14 +4,6 @@ interface Props {
   onStart: () => void
 }
 
-const FLOW: { icon: string; label: string; border: string; bg: string }[] = [
-  { icon: '📥', label: 'In Adapter',  border: 'border-sky-500',    bg: 'bg-sky-950'    },
-  { icon: '🔌', label: 'In Port',     border: 'border-indigo-500', bg: 'bg-indigo-950' },
-  { icon: '📦', label: 'Domain',      border: 'border-yellow-500', bg: 'bg-yellow-950' },
-  { icon: '🔗', label: 'Out Port',    border: 'border-violet-500', bg: 'bg-violet-950' },
-  { icon: '📤', label: 'Out Adapter', border: 'border-rose-500',   bg: 'bg-rose-950'   },
-]
-
 export function WelcomeScreen({ onStart }: Props) {
   const [fading, setFading] = useState(false)
 
@@ -29,9 +21,14 @@ export function WelcomeScreen({ onStart }: Props) {
       `}
     >
       {/* top-left brand */}
-      <div className="absolute top-5 left-6 font-bold text-xebia tracking-widest text-sm">
-        XEBIA
-      </div>
+      <a
+        href="https://xebia.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="absolute top-5 left-6 font-bold text-white tracking-widest hover:opacity-80 transition-opacity flex items-center"
+      >
+        <span className="text-3xl -mr-1">X</span><span className="text-xl">ebia</span>
+      </a>
 
       {/* top-right tagline */}
       <div className="absolute top-5 right-6 text-xs text-gray-600 font-mono">
@@ -41,35 +38,17 @@ export function WelcomeScreen({ onStart }: Props) {
       {/* center content */}
       <div className="flex flex-col items-center gap-8 max-w-2xl w-full px-8 text-center">
 
-        {/* headline */}
         <div className="flex flex-col gap-3">
-          <h1 className="text-4xl font-bold text-white leading-tight tracking-tight">
-            Design your Kotlin architecture.<br />
-            <span className="text-xebia">Get real code back.</span>
+          <h1 className="text-5xl font-bold text-white leading-tight tracking-tight">
+            Meet <span className="text-xavi text-7xl">XAVI</span>
           </h1>
-          <p className="text-gray-400 text-base leading-relaxed">
-            Drag modules onto the canvas, draw your dependency graph,<br />
-            hit <span className="text-gray-200 font-medium">Generate</span> — and walk away with a full multi-module Gradle scaffold,<br />
-            hexagonal structure and ArchUnit rules included.
+          <p className="text-gray-300 text-lg">
+            our Xebian Architecture Visualization Innovation
           </p>
-        </div>
-
-        {/* architecture flow diagram */}
-        <div className="flex items-center gap-1.5 flex-wrap justify-center">
-          {FLOW.map((m, i) => (
-            <div key={m.label} className="flex items-center gap-1.5">
-              <div className={`
-                ${m.bg} border ${m.border}
-                rounded-lg px-3 py-2 flex flex-col items-center gap-0.5 min-w-[76px]
-              `}>
-                <span className="text-lg">{m.icon}</span>
-                <span className="text-[10px] text-gray-300 font-mono">{m.label}</span>
-              </div>
-              {i < FLOW.length - 1 && (
-                <span className="text-gray-600 font-mono text-sm">→</span>
-              )}
-            </div>
-          ))}
+          <p className="text-gray-500 text-sm leading-relaxed max-w-lg">
+            Draw your architecture, see if it meets our 10 goals of solid architecture
+            and walk away with a multi-module Gradle project and our ArchUnit tests included.
+          </p>
         </div>
 
         {/* privacy notice */}
@@ -82,13 +61,13 @@ export function WelcomeScreen({ onStart }: Props) {
         <button
           onClick={handleStart}
           className="
-            bg-xebia hover:bg-orange-500 active:scale-95
+            bg-xavi hover:bg-xavi active:scale-95
             text-white font-bold text-base px-10 py-4 rounded-2xl
-            transition-all duration-150 shadow-lg shadow-orange-900/30
+            transition-all duration-150 shadow-lg shadow-purple-900/30
             tracking-wide
           "
         >
-          Start Designing →
+          Draw with us
         </button>
       </div>
 

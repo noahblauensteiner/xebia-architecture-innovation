@@ -54,7 +54,7 @@ function ModuleDetail({ node, onRename }: { node: Node; onRename: Props['onRenam
     if (e.key === 'Escape') { cb(); e.currentTarget.blur() }
   }
 
-  const inputCls = 'bg-gray-800 border border-gray-700 focus:border-xebia text-gray-100 rounded-lg px-3 py-2 outline-none transition-colors w-full'
+  const inputCls = 'bg-gray-800 border border-gray-700 focus:border-xavi text-gray-100 rounded-lg px-3 py-2 outline-none transition-colors w-full'
 
   return (
     <div className="flex flex-col gap-5 p-4">
@@ -115,7 +115,7 @@ export function FileTree({ fileTree, isGenerating, selectedNode, onRenameNode }:
   return (
     <div className="flex flex-col h-full bg-gray-950 border-l border-gray-800 w-80">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-800">
-        {isGenerating && <span className="w-2 h-2 rounded-full bg-xebia animate-pulse" />}
+        {isGenerating && <span className="w-2 h-2 rounded-full bg-xavi animate-pulse" />}
         <span className="text-[10px] uppercase tracking-widest text-gray-500">
           {showModule ? 'Module' : isGenerating ? 'Generating…' : 'File Structure'}
         </span>
@@ -141,7 +141,7 @@ export function FileTree({ fileTree, isGenerating, selectedNode, onRenameNode }:
 
       <div className="px-3 py-2 border-t border-gray-800 text-[10px] text-gray-500 flex items-center gap-1.5">
         <span>🛡️</span>
-        <span><span className="text-xebia font-medium">Xebia ArchUnit</span> rules included</span>
+        <span><span className="text-xavi font-medium">Xebia ArchUnit</span> rules included</span>
       </div>
     </div>
   )

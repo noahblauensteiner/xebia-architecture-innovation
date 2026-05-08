@@ -46,7 +46,7 @@ export function CanvasPane({ canvas, isActive, onActivate, onSplit, isSplit }: P
             <button
               onClick={(e) => { e.stopPropagation(); onSplit() }}
               title={isSplit ? 'Close split' : 'Split canvas'}
-              className="bg-gray-800 border border-gray-700 hover:border-xebia rounded p-1.5 text-gray-400 hover:text-gray-100 transition-colors text-sm leading-none"
+              className="bg-gray-800 border border-gray-700 hover:border-xavi rounded p-1.5 text-gray-400 hover:text-gray-100 transition-colors text-sm leading-none"
             >
               {isSplit ? '▣' : '⊟'}
             </button>
@@ -56,7 +56,7 @@ export function CanvasPane({ canvas, isActive, onActivate, onSplit, isSplit }: P
 
       {/* Active canvas border overlay */}
       {isSplit && (
-        <div className={`absolute inset-0 z-10 pointer-events-none border-2 ${isActive ? 'border-xebia/70' : 'border-gray-700'}`} />
+        <div className={`absolute inset-0 z-10 pointer-events-none border-2 ${isActive ? 'border-xavi/70' : 'border-gray-700'}`} />
       )}
 
       {/* Edge context menu */}
