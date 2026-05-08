@@ -1,29 +1,15 @@
-import { useCallback, useEffect, useState } from 'react'
-import {
-  ReactFlow,
-  addEdge,
-  Background,
-  Controls,
-  ConnectionMode,
-  useNodesState,
-  useEdgesState,
-  type Connection,
-  type Node,
-  type Edge,
-  MarkerType,
-} from '@xyflow/react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Node } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
-import { ModuleNodeComponent, type ModuleNodeData } from './components/ModuleNode'
+import { CanvasPane } from './components/CanvasPane'
 import { ModulePalette } from './components/ModulePalette'
 import { FileTree } from './components/FileTree'
 import { QRDisplay } from './components/QRDisplay'
 import { WelcomeScreen } from './components/WelcomeScreen'
-import { ConnectionContext } from './context/ConnectionContext'
+import { useCanvasState } from './hooks/useCanvasState'
 import { generateProject } from './api/generate'
-import type { ModuleType } from './types/architecture'
-
-const nodeTypes = { module: ModuleNodeComponent }
+import type { ModuleNodeData } from './components/ModuleNode'
 
 function toPackageName(projectName: string): string {
   return 'com.xebia.' + projectName.toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -48,62 +34,40 @@ function buildPreviewTree(nodes: Node[]): string[] {
 }
 
 export default function App() {
+  const canvasA = useCanvasState()
+  const canvasB = useCanvasState()
+
   const [welcomed, setWelcomed] = useState(false)
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([])
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
   const [projectName, setProjectName] = useState('my-kotlin-app')
   const [visitorEmail, setVisitorEmail] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedResult, setGeneratedResult] = useState<{ branchUrl: string | null } | null>(null)
   const [fileTree, setFileTree] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [edgeMenu, setEdgeMenu] = useState<{ edge: Edge; x: number; y: number } | null>(null)
-  const [connectingFrom, setConnectingFrom] = useState<{ nodeId: string; handleId: string } | null>(null)
-  const nodeCounter = useState(0)
+
+  const [isSplit, setIsSplit] = useState(false)
+  const [splitRatio, setSplitRatio] = useState(0.5)
+  const [activeCanvas, setActiveCanvas] = useState<'a' | 'b'>('a')
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setFileTree(buildPreviewTree(nodes))
-  }, [nodes])
-
-  const onConnect = useCallback(
-    (connection: Connection) =>
-      setEdges((eds) =>
-        addEdge({ ...connection, animated: true, markerEnd: { type: MarkerType.ArrowClosed, color: '#6b7280' }, style: { stroke: '#6b7280' } } as Edge, eds)
-      ),
-    [setEdges]
-  )
-
-  const addModule = useCallback(
-    (type: ModuleType) => {
-      const id = `${type}-${Date.now()}`
-      const count = nodeCounter[0]
-      nodeCounter[1](count + 1)
-      const newNode: Node = {
-        id,
-        type: 'module',
-        position: { x: 160 + (count % 3) * 180, y: 80 + Math.floor(count / 3) * 140 },
-        data: { moduleType: type, label: type, displayName: type, description: '' } satisfies ModuleNodeData,
-      }
-      setNodes((nds) => [...nds.map((n) => ({ ...n, selected: false })), { ...newNode, selected: true }])
-    },
-    [setNodes, nodeCounter]
-  )
+    setFileTree(buildPreviewTree(canvasA.nodes))
+  }, [canvasA.nodes])
 
   const handleGenerate = async () => {
-    if (nodes.length === 0) return
+    if (canvasA.nodes.length === 0) return
     setIsGenerating(true)
     setError(null)
     setGeneratedResult(null)
-
     try {
       const result = await generateProject({
         projectName,
         packageName: toPackageName(projectName),
-        nodes: nodes.map((n) => {
+        nodes: canvasA.nodes.map((n) => {
           const d = n.data as ModuleNodeData
           return { id: n.id, type: d.moduleType, label: d.label }
         }),
-        edges: (edges as Edge[]).map((e) => ({ source: e.source, target: e.target })),
+        edges: canvasA.edges.map((e) => ({ source: e.source, target: e.target })),
         visitorEmail: visitorEmail || undefined,
       })
       setFileTree(result.fileTree)
@@ -116,86 +80,47 @@ export default function App() {
   }
 
   const handleClear = () => {
-    setNodes([])
-    setEdges([])
+    canvasA.clear()
+    canvasB.clear()
     setGeneratedResult(null)
     setFileTree([])
     setError(null)
-    setEdgeMenu(null)
-    setConnectingFrom(null)
   }
 
-  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
-    event.stopPropagation()
-    setEdgeMenu({ edge, x: event.clientX, y: event.clientY })
-  }, [])
-
-  const onPaneClick = useCallback(() => {
-    setEdgeMenu(null)
-    setConnectingFrom(null)
-  }, [])
-
-  const renameNode = useCallback((id: string, field: 'displayName' | 'label' | 'description', value: string) => {
-    setNodes((nds) =>
-      nds.map((n) => n.id === id ? { ...n, data: { ...n.data, [field]: value } } : n)
-    )
-  }, [setNodes])
-
-  const handleHandleClick = useCallback((nodeId: string, handleId: string) => {
-    setConnectingFrom((prev) => {
-      if (!prev) return { nodeId, handleId }
-      if (prev.nodeId === nodeId && prev.handleId === handleId) return null
-      if (prev.nodeId === nodeId) return { nodeId, handleId }
-      // Different node — create edge
-      const newEdge: Edge = {
-        id: `e-${prev.nodeId}-${nodeId}-${Date.now()}`,
-        source: prev.nodeId,
-        target: nodeId,
-        sourceHandle: `${prev.handleId}-s`,
-        targetHandle: `${handleId}-t`,
-        animated: true,
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#6b7280' },
-        style: { stroke: '#6b7280' },
-      }
-      setEdges((eds) => addEdge(newEdge, eds))
-      return null
-    })
-  }, [setEdges])
-
-  const deleteEdge = () => {
-    if (!edgeMenu) return
-    setEdges((eds) => eds.filter((e) => e.id !== edgeMenu.edge.id))
-    setEdgeMenu(null)
-  }
-
-  const flipEdge = () => {
-    if (!edgeMenu) return
-    setEdges((eds) =>
-      eds.map((e) =>
-        e.id === edgeMenu.edge.id
-          ? {
-              ...e,
-              source: e.target,
-              target: e.source,
-              sourceHandle: e.targetHandle?.replace('-t', '-s') ?? e.targetHandle,
-              targetHandle: e.sourceHandle?.replace('-s', '-t') ?? e.sourceHandle,
-            }
-          : e
-      )
-    )
-    setEdgeMenu(null)
-  }
-
-  const displayEdges = edges.map((e) =>
-    e.id === edgeMenu?.edge.id
-      ? { ...e, style: { stroke: '#ff6600', strokeWidth: 2.5 } }
-      : e
+  const renameNode = useCallback(
+    (id: string, field: 'displayName' | 'label' | 'description', value: string) => {
+      const updater = (nds: Node[]) =>
+        nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, [field]: value } } : n))
+      canvasA.setNodes(updater)
+      canvasB.setNodes(updater)
+    },
+    [canvasA.setNodes, canvasB.setNodes],
   )
 
+  const onSplitterMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    const onMove = (ev: MouseEvent) => {
+      if (!containerRef.current) return
+      const rect = containerRef.current.getBoundingClientRect()
+      const ratio = (ev.clientY - rect.top) / rect.height
+      setSplitRatio(Math.max(0.2, Math.min(0.8, ratio)))
+    }
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+
+  const activeCanvasState = activeCanvas === 'a' ? canvasA : canvasB
+  const selectedNode =
+    canvasA.nodes.find((n) => n.selected) ?? canvasB.nodes.find((n) => n.selected) ?? null
+
   return (
-    <ConnectionContext.Provider value={{ connectingFrom, onHandleClick: handleHandleClick }}>
     <div className="flex flex-col h-screen bg-gray-900">
       {!welcomed && <WelcomeScreen onStart={() => setWelcomed(true)} />}
+
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-2.5 bg-gray-950 border-b border-gray-800 flex-shrink-0">
         <span className="font-bold text-xebia tracking-widest text-sm">XEBIA</span>
@@ -210,64 +135,54 @@ export default function App() {
 
       {/* Main */}
       <div className="flex flex-1 overflow-hidden">
-        <ModulePalette onAdd={addModule} />
+        <ModulePalette onAdd={(type) => activeCanvasState.addModule(type)} />
 
-        {/* Canvas */}
-        <div className="flex-1 relative">
-          <ReactFlow
-            nodes={nodes}
-            edges={displayEdges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            onConnectStart={() => setConnectingFrom(null)}
-            onEdgeClick={onEdgeClick}
-            onPaneClick={onPaneClick}
-            nodeTypes={nodeTypes}
-            connectionMode={ConnectionMode.Loose}
-            fitView
-            className="bg-gray-900"
-          >
-            <Background color="#374151" gap={24} />
-            <Controls className="!bg-gray-800 !border-gray-700 !rounded-lg" />
-          </ReactFlow>
+        {/* Canvas area */}
+        <div ref={containerRef} className="flex-1 flex flex-col overflow-hidden">
+          {/* Canvas A — always visible */}
+          <div style={{ height: isSplit ? `${splitRatio * 100}%` : '100%' }} className="flex-shrink-0">
+            <CanvasPane
+              canvas={canvasA}
+              isActive={activeCanvas === 'a'}
+              onActivate={() => setActiveCanvas('a')}
+              onSplit={() => setIsSplit((s) => !s)}
+              isSplit={isSplit}
+            />
+          </div>
+
+          {/* Splitter + Canvas B — only when split */}
+          {isSplit && (
+            <>
+              <div
+                className="h-1 bg-gray-700 hover:bg-xebia cursor-row-resize flex-shrink-0 transition-colors"
+                onMouseDown={onSplitterMouseDown}
+              />
+              <div className="flex-1 min-h-0">
+                <CanvasPane
+                  canvas={canvasB}
+                  isActive={activeCanvas === 'b'}
+                  onActivate={() => setActiveCanvas('b')}
+                  onSplit={() => setIsSplit(false)}
+                  isSplit={isSplit}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <FileTree
           fileTree={fileTree}
           isGenerating={isGenerating}
-          selectedNode={nodes.find((n) => n.selected) ?? null}
+          selectedNode={selectedNode}
           onRenameNode={renameNode}
         />
       </div>
-
-      {/* Edge context menu */}
-      {edgeMenu && (
-        <div
-          className="fixed z-40 flex gap-px bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden"
-          style={{ left: edgeMenu.x, top: edgeMenu.y, transform: 'translate(-50%, calc(-100% - 10px))' }}
-        >
-          <button
-            onClick={flipEdge}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-          >
-            ↔ Flip
-          </button>
-          <div className="w-px bg-gray-700" />
-          <button
-            onClick={deleteEdge}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs text-red-400 hover:bg-gray-700 hover:text-red-300 transition-colors"
-          >
-            ✕ Delete
-          </button>
-        </div>
-      )}
 
       {/* Bottom bar */}
       <footer className="flex items-center gap-4 px-5 py-3 bg-gray-950 border-t border-gray-800 flex-shrink-0">
         <button
           onClick={handleGenerate}
-          disabled={isGenerating || nodes.length === 0}
+          disabled={isGenerating || canvasA.nodes.length === 0}
           className="bg-xebia hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-colors"
         >
           {isGenerating ? 'Generating…' : '⚡ Generate Project'}
@@ -294,6 +209,5 @@ export default function App() {
         </div>
       </footer>
     </div>
-    </ConnectionContext.Provider>
   )
 }
