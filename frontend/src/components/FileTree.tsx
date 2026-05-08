@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Node } from '@xyflow/react'
 import { MODULE_META } from '../types/architecture'
 import type { ModuleNodeData } from './ModuleNode'
@@ -109,6 +109,58 @@ function ModuleDetail({ node, onRename }: { node: Node; onRename: Props['onRenam
   )
 }
 
+const CHECKLIST = [
+  'Does your core module have zero dependencies on frameworks, databases, or infrastructure?',
+  'Can you test all business logic without starting a server or database?',
+  'Are all integration tests consolidated in a single adapter module so Spring can cache one ApplicationContext across the full test suite?',
+  'Are all external systems hidden behind interfaces your application owns?',
+  'Can you swap your database or any external system without touching business logic?',
+  'Does each module have a single, clearly statable responsibility?',
+  'Do all dependencies point in one direction with no cycles?',
+]
+
+function ArchitectureChecklist() {
+  const [checked, setChecked] = useState<boolean[]>(() => Array(CHECKLIST.length).fill(false))
+  const [open, setOpen] = useState(true)
+
+  const toggle = useCallback((i: number) => {
+    setChecked(prev => prev.map((v, idx) => idx === i ? !v : v))
+  }, [])
+
+  const doneCount = checked.filter(Boolean).length
+
+  return (
+    <div className="border-b border-gray-800">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-900 transition-colors"
+      >
+        <span className="text-[10px] uppercase tracking-widest text-gray-500">Solid Architecture</span>
+        <span className="text-[10px] text-gray-600 font-mono">{doneCount}/{CHECKLIST.length} {open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <ul className="px-3 pb-3 flex flex-col gap-2">
+          {CHECKLIST.map((item, i) => (
+            <li key={i}>
+              <label className="flex items-start gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={checked[i]}
+                  onChange={() => toggle(i)}
+                  className="mt-0.5 flex-shrink-0 accent-xavi"
+                />
+                <span className={`text-[10px] leading-relaxed transition-colors ${checked[i] ? 'text-gray-600 line-through' : 'text-gray-400 group-hover:text-gray-300'}`}>
+                  {item}
+                </span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
+
 export function FileTree({ fileTree, isGenerating, selectedNode, onRenameNode }: Props) {
   const showModule = selectedNode !== null
 
@@ -125,17 +177,20 @@ export function FileTree({ fileTree, isGenerating, selectedNode, onRenameNode }:
         {showModule ? (
           <ModuleDetail node={selectedNode} onRename={onRenameNode} />
         ) : (
-          <div className="p-3 font-mono text-[11px] leading-relaxed">
-            {fileTree.length === 0 ? (
-              <div className="text-gray-600 italic pt-2 px-1">
-                Add modules to the canvas to see the file structure
-              </div>
-            ) : (
-              fileTree.map((line, i) => (
-                <div key={i} className={lineColor(line)}>{line}</div>
-              ))
-            )}
-          </div>
+          <>
+            <ArchitectureChecklist />
+            <div className="p-3 font-mono text-[11px] leading-relaxed">
+              {fileTree.length === 0 ? (
+                <div className="text-gray-600 italic pt-2 px-1">
+                  Add modules to the canvas to see the file structure
+                </div>
+              ) : (
+                fileTree.map((line, i) => (
+                  <div key={i} className={lineColor(line)}>{line}</div>
+                ))
+              )}
+            </div>
+          </>
         )}
       </div>
 
