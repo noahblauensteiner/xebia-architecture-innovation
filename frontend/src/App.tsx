@@ -7,9 +7,12 @@ import { ModulePalette } from './components/ModulePalette'
 import { FileTree } from './components/FileTree'
 import { QRDisplay } from './components/QRDisplay'
 import { WelcomeScreen } from './components/WelcomeScreen'
+import { ChallengeScreen } from './components/ChallengeScreen'
 import { useCanvasState } from './hooks/useCanvasState'
 import { generateProject } from './api/generate'
 import type { ModuleNodeData } from './components/ModuleNode'
+
+type AppMode = 'design' | 'challenge'
 
 function toPackageName(projectName: string): string {
   return 'com.xebia.' + projectName.toLowerCase().replace(/[^a-z0-9]/g, '')
@@ -38,6 +41,7 @@ export default function App() {
   const canvasB = useCanvasState()
 
   const [welcomed, setWelcomed] = useState(false)
+  const [mode, setMode] = useState<AppMode>('design')
   const [projectName, setProjectName] = useState('my-kotlin-app')
   const [visitorEmail, setVisitorEmail] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
@@ -119,14 +123,26 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-900">
-      {!welcomed && <WelcomeScreen onStart={() => setWelcomed(true)} />}
+      {!welcomed && (
+        <WelcomeScreen
+          onStart={() => setWelcomed(true)}
+          onChallenge={() => { setMode('challenge'); setWelcomed(true) }}
+        />
+      )}
+      {welcomed && mode === 'challenge' && (
+        <div className="fixed inset-0 z-40">
+          <ChallengeScreen onExit={() => { setMode('design'); setWelcomed(false) }} />
+        </div>
+      )}
 
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-2.5 bg-gray-950 border-b border-gray-800 flex-shrink-0">
         <button
           onClick={() => setWelcomed(false)}
-          className="font-bold text-xavi tracking-widest text-sm hover:opacity-80 transition-opacity cursor-pointer"
-        >XAVI</button>
+          className="hover:opacity-80 transition-opacity cursor-pointer"
+        >
+          <img src="/src/xebia_purple.png" alt="Xebia" className="h-6" />
+        </button>
         <input
           className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-1.5 w-48 focus:outline-none focus:border-xavi"
           value={projectName}

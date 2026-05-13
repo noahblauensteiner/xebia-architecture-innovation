@@ -18,9 +18,10 @@ interface Props {
   onActivate: () => void
   onSplit: () => void
   isSplit: boolean
+  showSplit?: boolean
 }
 
-export function CanvasPane({ canvas, isActive, onActivate, onSplit, isSplit }: Props) {
+export function CanvasPane({ canvas, isActive, onActivate, onSplit, isSplit, showSplit = true }: Props) {
   return (
     <div className="w-full h-full relative">
 
@@ -42,15 +43,27 @@ export function CanvasPane({ canvas, isActive, onActivate, onSplit, isSplit }: P
         >
           <Background color="#374151" gap={24} />
           <Controls className="!bg-gray-800 !border-gray-700 !rounded-lg" />
-          <Panel position="top-left">
+          <Panel position="bottom-left">
             <button
-              onClick={(e) => { e.stopPropagation(); onSplit() }}
-              title={isSplit ? 'Close split' : 'Split canvas'}
+              onClick={(e) => { e.stopPropagation(); canvas.autoLayout() }}
+              title="Auto-arrange modules"
               className="bg-gray-800 border border-gray-700 hover:border-xavi rounded p-1.5 text-gray-400 hover:text-gray-100 transition-colors text-sm leading-none"
             >
-              {isSplit ? '▣' : '⊟'}
+              ⊞
             </button>
           </Panel>
+
+          {showSplit && (
+            <Panel position="top-left">
+              <button
+                onClick={(e) => { e.stopPropagation(); onSplit() }}
+                title={isSplit ? 'Close split' : 'Split canvas'}
+                className="bg-gray-800 border border-gray-700 hover:border-xavi rounded p-1.5 text-gray-400 hover:text-gray-100 transition-colors text-sm leading-none"
+              >
+                {isSplit ? '▣' : '⊟'}
+              </button>
+            </Panel>
+          )}
         </ReactFlow>
       </ConnectionContext.Provider>
 
@@ -65,6 +78,13 @@ export function CanvasPane({ canvas, isActive, onActivate, onSplit, isSplit }: P
           className="fixed z-40 flex gap-px bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden"
           style={{ left: canvas.edgeMenu.x, top: canvas.edgeMenu.y, transform: 'translate(-50%, calc(-100% - 10px))' }}
         >
+          <button
+            onClick={canvas.addPort}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+          >
+            ⊕ Add port
+          </button>
+          <div className="w-px bg-gray-700" />
           <button
             onClick={canvas.flipEdge}
             className="flex items-center gap-1.5 px-3 py-2 text-xs text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"

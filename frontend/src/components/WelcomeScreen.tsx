@@ -2,14 +2,22 @@ import { useState } from 'react'
 
 interface Props {
   onStart: () => void
+  onChallenge: () => void
 }
 
-export function WelcomeScreen({ onStart }: Props) {
+export function WelcomeScreen({ onStart, onChallenge }: Props) {
   const [fading, setFading] = useState(false)
+
+  const FADE_MS = 300
 
   const handleStart = () => {
     setFading(true)
-    setTimeout(onStart, 280)
+    setTimeout(onStart, FADE_MS)
+  }
+
+  const handleChallenge = () => {
+    setFading(true)
+    setTimeout(onChallenge, FADE_MS)
   }
 
   return (
@@ -25,9 +33,9 @@ export function WelcomeScreen({ onStart }: Props) {
         href="https://xebia.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="absolute top-5 left-6 font-bold text-white tracking-widest hover:opacity-80 transition-opacity flex items-center"
+        className="absolute top-5 left-6 hover:opacity-80 transition-opacity"
       >
-        <span className="text-3xl -mr-1">X</span><span className="text-xl">ebia</span>
+        <img src="/src/xebia_white.png" alt="Xebia" className="h-6" />
       </a>
 
       {/* top-right tagline */}
@@ -57,18 +65,31 @@ export function WelcomeScreen({ onStart }: Props) {
           Only if you choose to <span className="text-gray-300 font-medium">Publish</span>, we push a single commit to our public GitHub repo — yours to clone and build on. Nothing else leaves this page.
         </p>
 
-        {/* CTA */}
-        <button
-          onClick={handleStart}
-          className="
-            bg-xavi hover:bg-xavi active:scale-95
-            text-white font-bold text-base px-10 py-4 rounded-2xl
-            transition-all duration-150 shadow-lg shadow-purple-900/30
-            tracking-wide
-          "
-        >
-          Draw with us
-        </button>
+        {/* CTAs */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleStart}
+            className="
+              bg-xavi hover:bg-xavi active:scale-95
+              text-white font-bold text-base px-10 py-4 rounded-2xl
+              transition-all duration-150 shadow-lg shadow-purple-900/30
+              tracking-wide
+            "
+          >
+            Draw with us
+          </button>
+          <button
+            onClick={handleChallenge}
+            className="
+              border border-xavi text-xavi hover:bg-xavi/10 active:scale-95
+              font-bold text-base px-8 py-4 rounded-2xl
+              transition-all duration-150
+              tracking-wide
+            "
+          >
+            Accept Challenge
+          </button>
+        </div>
       </div>
 
       {/* bottom hint */}
