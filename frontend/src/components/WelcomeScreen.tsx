@@ -1,101 +1,127 @@
-import { useState } from 'react'
-
 interface Props {
   onStart: () => void
   onChallenge: () => void
 }
 
 export function WelcomeScreen({ onStart, onChallenge }: Props) {
-  const [fading, setFading] = useState(false)
-
-  const FADE_MS = 300
-
-  const handleStart = () => {
-    setFading(true)
-    setTimeout(onStart, FADE_MS)
-  }
-
-  const handleChallenge = () => {
-    setFading(true)
-    setTimeout(onChallenge, FADE_MS)
-  }
-
   return (
-    <div
-      className={`
-        fixed inset-0 z-50 bg-gray-950 flex flex-col items-center justify-center
-        transition-opacity duration-300
-        ${fading ? 'opacity-0 pointer-events-none' : 'opacity-100'}
-      `}
-    >
-      {/* top-left brand */}
-      <a
-        href="https://xebia.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="absolute top-5 left-6 hover:opacity-80 transition-opacity"
-      >
-        <img src="/src/xebia_white.png" alt="Xebia" className="h-6" />
-      </a>
+    <div className="fixed inset-0 z-50 bg-[#0d0d12] flex flex-col">
 
-      {/* top-right tagline */}
-      <div className="absolute top-5 right-6 text-xs text-gray-600 font-mono">
-        KotlinConf 2025
+      {/* Header */}
+      <header className="relative flex items-center px-8 py-5 flex-shrink-0">
+        <a
+          href="https://xebia.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:opacity-70 transition-opacity"
+        >
+          <img src="/src/xebia_white.png" alt="Xebia" className="h-5" />
+        </a>
+        <span className="absolute left-1/2 -translate-x-1/2 text-[11px] font-mono tracking-[0.3em] text-gray-700 uppercase">
+          XAVI
+        </span>
+        <span className="ml-auto text-xs text-gray-600 font-mono">KotlinConf 2026</span>
+      </header>
+
+      {/* Identity */}
+      <div className="flex flex-col items-center gap-1.5 pt-6 pb-2 flex-shrink-0">
+        <h1 className="text-4xl font-bold text-white leading-tight">
+          Meet <span className="text-xavi text-6xl">XAVI</span>
+        </h1>
+        <p className="text-sm text-gray-500">our Xebian Architecture Visualization Innovation</p>
       </div>
 
-      {/* center content */}
-      <div className="flex flex-col items-center gap-8 max-w-2xl w-full px-8 text-center">
+      {/* Split main */}
+      <div className="flex flex-1 overflow-hidden">
 
-        <div className="flex flex-col gap-3">
-          <h1 className="text-5xl font-bold text-white leading-tight tracking-tight">
-            Meet <span className="text-xavi text-7xl">XAVI</span>
-          </h1>
-          <p className="text-gray-300 text-lg">
-            our Xebian Architecture Visualization Innovation
-          </p>
-          <p className="text-gray-500 text-sm leading-relaxed max-w-lg">
-            Draw your architecture, see if it meets our 10 goals of solid architecture
-            and walk away with a multi-module Gradle project and our ArchUnit tests included.
-          </p>
+        {/* Left: Draw */}
+        <div
+          onClick={onStart}
+          className="flex-1 flex flex-col items-center justify-center gap-10 px-16 py-12 cursor-pointer hover:bg-white/[0.02] transition-colors"
+        >
+          <svg width="80" height="56" viewBox="0 0 80 56" fill="none" aria-hidden>
+            <rect x="1" y="18" width="20" height="20" rx="3" stroke="#64235c" strokeWidth="1.5"/>
+            <rect x="30" y="18" width="20" height="20" rx="3" stroke="#64235c" strokeWidth="1.5"/>
+            <rect x="59" y="18" width="20" height="20" rx="3" stroke="#64235c" strokeWidth="1.5"/>
+            <line x1="21" y1="28" x2="30" y2="28" stroke="#64235c" strokeWidth="1.5"/>
+            <line x1="50" y1="28" x2="59" y2="28" stroke="#64235c" strokeWidth="1.5"/>
+            <polyline points="26,24 30,28 26,32" stroke="#64235c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            <polyline points="55,24 59,28 55,32" stroke="#64235c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          </svg>
+
+          <div className="flex flex-col gap-3 max-w-xs text-center">
+            <h2 className="text-[2rem] font-bold text-white leading-tight">
+              Draw your architecture
+            </h2>
+            <p className="text-[0.875rem] text-gray-500 leading-relaxed">
+              Place modules on a canvas, draw dependency arrows, and score your design
+              against 10 principles of solid architecture. Walk away with a generated
+              Kotlin multi-module project — ready to build on.
+            </p>
+          </div>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); onStart() }}
+            className="bg-xavi hover:bg-[#7a2d72] text-white text-sm font-bold px-8 py-3 rounded-xl transition-colors"
+          >
+            Start drawing
+          </button>
         </div>
 
-        {/* privacy notice */}
-        <p className="text-xs text-gray-500 leading-relaxed max-w-md">
-          <span className="text-gray-400">🔒 Your design stays on this screen.</span><br />
-          Only if you choose to <span className="text-gray-300 font-medium">Publish</span>, we push a single commit to our public GitHub repo — yours to clone and build on. Nothing else leaves this page.
+        {/* Divider */}
+        <div className="relative w-px bg-white/[0.07] flex-shrink-0">
+          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0d0d12] px-1.5 py-1 text-[11px] font-mono text-gray-700">
+            or
+          </span>
+        </div>
+
+        {/* Right: Challenge */}
+        <div
+          onClick={onChallenge}
+          className="flex-1 flex flex-col items-center justify-center gap-10 px-16 py-12 cursor-pointer hover:bg-white/[0.02] transition-colors"
+        >
+          <div className="flex flex-col gap-1.5 w-52">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-mono text-gray-600 w-12 text-right shrink-0">Warm</span>
+              <div className="flex-1 h-5 rounded-sm bg-amber-500/70" />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-mono text-gray-600 w-12 text-right shrink-0">Hot</span>
+              <div className="flex-1 h-5 rounded-sm bg-orange-500/80" />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-mono text-gray-600 w-12 text-right shrink-0">Blazing</span>
+              <div className="flex-1 h-5 rounded-sm bg-red-600/90" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 max-w-xs text-center">
+            <h2 className="text-[2rem] font-bold text-white leading-tight">
+              Take the challenge
+            </h2>
+            <p className="text-[0.875rem] text-gray-500 leading-relaxed">
+              Three escalating levels — module boundaries, clean architecture, agentic systems.
+              Fix the flaws in a broken design and learn what makes Kotlin services production-ready.
+            </p>
+          </div>
+
+          <button
+            onClick={(e) => { e.stopPropagation(); onChallenge() }}
+            className="border border-white/20 hover:border-white/40 hover:text-white text-gray-400 text-sm font-bold px-8 py-3 rounded-xl transition-colors"
+          >
+            How hot can you go?
+          </button>
+        </div>
+
+      </div>
+
+      {/* Privacy note */}
+      <footer className="flex justify-center px-8 py-5 flex-shrink-0">
+        <p className="text-[11px] text-gray-700">
+          Nothing you draw ever leaves this screen — unless you choose to publish your generated repo to GitHub.
         </p>
+      </footer>
 
-        {/* CTAs */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleStart}
-            className="
-              bg-xavi hover:bg-xavi active:scale-95
-              text-white font-bold text-base px-10 py-4 rounded-2xl
-              transition-all duration-150 shadow-lg shadow-purple-900/30
-              tracking-wide
-            "
-          >
-            Draw with us
-          </button>
-          <button
-            onClick={handleChallenge}
-            className="
-              border border-xavi text-xavi hover:bg-xavi/10 active:scale-95
-              font-bold text-base px-8 py-4 rounded-2xl
-              transition-all duration-150
-              tracking-wide
-            "
-          >
-            Accept Challenge
-          </button>
-        </div>
-      </div>
-
-      {/* bottom hint */}
-      <div className="absolute bottom-5 text-[11px] text-gray-700 font-mono">
-        double-click a node to rename it &nbsp;·&nbsp; drag from a handle to connect
-      </div>
     </div>
   )
 }
