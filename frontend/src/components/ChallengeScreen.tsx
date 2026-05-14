@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import confetti from 'canvas-confetti'
+import xebiaPurple from '../xebia_purple.png'
 import { CanvasPane } from './CanvasPane'
 import { ModulePalette } from './ModulePalette'
 import { ChallengeSidebar } from './ChallengeSidebar'
@@ -48,7 +49,7 @@ export function ChallengeScreen({ onExit }: Props) {
           onClick={onExit}
           className="hover:opacity-80 transition-opacity cursor-pointer"
         >
-          <img src="/src/xebia_purple.png" alt="Xebia" className="h-6" />
+          <img src={xebiaPurple} alt="Xebia" className="h-6" />
         </button>
         <h1 className="text-white font-bold text-xl flex-1 text-center">Kotlin Conference Challenge</h1>
       </header>

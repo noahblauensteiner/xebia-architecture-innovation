@@ -1,3 +1,5 @@
+import xebiaWhite from '../xebia_white.png'
+
 interface Props {
   onStart: () => void
   onChallenge: () => void
@@ -15,7 +17,7 @@ export function WelcomeScreen({ onStart, onChallenge }: Props) {
           rel="noopener noreferrer"
           className="hover:opacity-70 transition-opacity"
         >
-          <img src="/src/xebia_white.png" alt="Xebia" className="h-5" />
+          <img src={xebiaWhite} alt="Xebia" className="h-5" />
         </a>
         <span className="absolute left-1/2 -translate-x-1/2 text-[11px] font-mono tracking-[0.3em] text-gray-700 uppercase">
           XAVI
