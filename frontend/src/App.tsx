@@ -11,6 +11,7 @@ import { ChallengeScreen } from './components/ChallengeScreen'
 import { useCanvasState } from './hooks/useCanvasState'
 import { generateProject } from './api/generate'
 import type { ModuleNodeData } from './components/ModuleNode'
+import xebiaPurple from './xebia_purple.png'
 
 type AppMode = 'design' | 'challenge'
 
@@ -141,7 +142,7 @@ export default function App() {
           onClick={() => setWelcomed(false)}
           className="hover:opacity-80 transition-opacity cursor-pointer"
         >
-          <img src="/src/xebia_purple.png" alt="Xebia" className="h-6" />
+          <img src={xebiaPurple} alt="Xebia" className="h-6" />
         </button>
         <input
           className="bg-gray-800 border border-gray-700 text-gray-200 text-sm rounded-lg px-3 py-1.5 w-48 focus:outline-none focus:border-xavi"
